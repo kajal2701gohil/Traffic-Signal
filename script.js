@@ -49,18 +49,18 @@ function showTime(currentSignal, expireTime) {
 
 
 function startSignal(currentSignal, expireTime) {
-    if (hasSignalOpen) {
-        timing[currentSignal].textContent = Math.round((inputPercentage[currentSignal].value * seconds.value) / 100) - 3;
-        signals[currentSignal].querySelector(".circle3").classList.add("green");
-        signals[currentSignal].querySelector(".circle1").classList.remove("red");
-        signals.forEach(x => {
-            let y = x.querySelector(".circle3");
-            if (!y.classList.contains("green")) {
-                x.querySelector(".circle1").classList.add("red");
-            }
-        })
-        nextSignal = setInterval(startInterval, 1000, expireTime);
-    }
+    // if (hasSignalOpen) {
+    timing[currentSignal].textContent = Math.round((inputPercentage[currentSignal].value * seconds.value) / 100) - 3;
+    signals[currentSignal].querySelector(".circle3").classList.add("green");
+    signals[currentSignal].querySelector(".circle1").classList.remove("red");
+    signals.forEach(x => {
+        let y = x.querySelector(".circle3");
+        if (!y.classList.contains("green")) {
+            x.querySelector(".circle1").classList.add("red");
+        }
+    })
+    nextSignal = setInterval(startInterval, 1000, expireTime);
+    // }
 }
 
 function startInterval(expireTime) {
@@ -144,7 +144,7 @@ function continueChecking() {
 }
 
 
-// checkTimeZone();
+checkTimeZone();
 
 
 
