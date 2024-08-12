@@ -1,13 +1,15 @@
+"use strict";
+
 const seconds = document.querySelector("#seconds");
 const inputPercentage = document.querySelectorAll(".inputPercentage");
-let totalPercentage = 0;
 const signals = document.querySelectorAll(".signal");
 const timing = document.querySelectorAll("h3");
-let currentSignal = 0;
-let redScore = 0;
-let data = [];
-let noMatchTime = 0;
 let hasSignalOpen = false;
+let data = [];
+let totalPercentage = 0;
+let currentSignal = 0;
+let noMatchTime = 0;
+let redScore = 0;
 let timeInterval;
 let nextSignal;
 
@@ -16,8 +18,8 @@ fetch("/timeData.json").then(x => x.json()).then(res => data = res.data);
 function getSeconds() {
     for (let x of inputPercentage) {
         x.value = 25;
-    }
-}
+    };
+};
 
 for (let x of inputPercentage) {
     x.addEventListener("change", () => {
@@ -25,15 +27,14 @@ for (let x of inputPercentage) {
         totalPercentage += Number(x.value);
         let remainInputs = document.querySelectorAll(".change");
         remainInputs?.forEach(x => x.value = Math.round((100 - totalPercentage) / remainInputs.length));
-    })
-}
+    });
+};
 
 function showTime(currentSignal, expireTime) {
-    clearInterval(nextSignal); // add
-    if (seconds.value == "") {
-        seconds.value = 100;
+    if (seconds.value === "") {
+        seconds.value = 150;
         getSeconds();
-    }
+    };
     signals.forEach(x => x.querySelector(".circle2").classList.remove("yellow"));
     for (let i = 1; i <= signals.length; i++) {
         redScore += Math.round(inputPercentage[i - 1].value * seconds.value / 100);
@@ -42,14 +43,12 @@ function showTime(currentSignal, expireTime) {
         }
         else {
             timing[i].textContent = redScore;
-        }
-    }
+        };
+    };
     startSignal(currentSignal, expireTime);
-}
-
+};
 
 function startSignal(currentSignal, expireTime) {
-    // if (hasSignalOpen) {
     timing[currentSignal].textContent = Math.round((inputPercentage[currentSignal].value * seconds.value) / 100) - 3;
     signals[currentSignal].querySelector(".circle3").classList.add("green");
     signals[currentSignal].querySelector(".circle1").classList.remove("red");
@@ -57,11 +56,10 @@ function startSignal(currentSignal, expireTime) {
         let y = x.querySelector(".circle3");
         if (!y.classList.contains("green")) {
             x.querySelector(".circle1").classList.add("red");
-        }
-    })
+        };
+    });
     nextSignal = setInterval(startInterval, 1000, expireTime);
-    // }
-}
+};
 
 function startInterval(expireTime) {
     let hold = Math.floor(new Date().setHours(expireTime.split(":")[0], expireTime.split(":")[1]) / 1000);
@@ -89,16 +87,34 @@ function startInterval(expireTime) {
                 signals[currentSignal].querySelector(".circle3").classList.remove("green");
                 signals[currentSignal].querySelector(".circle2").classList.add("yellow");
                 timing[currentSignal].textContent = 3;
-            }
-        }
-    }
-
-}
+            };
+        };
+    };
+};
 
 function signalStop() {
     timing.forEach(x => x.textContent = 0);
     signals.forEach(x => x.querySelector(".circle2").classList.add("yellow"));
-}
+};
+
+function continueChecking() {
+    clearInterval(nextSignal);
+    clearInterval(timeInterval);
+    hasSignalOpen = false;
+    noMatchTime = 0;
+    if (!hasSignalOpen) {
+        timeInterval = setInterval(checkTimeZone, 5000);
+    };
+    let yellowCircles = 0;
+    document.querySelectorAll(".circle2").forEach(x => {
+        if (x.classList.contains("yellow")) {
+            yellowCircles++;
+        };
+    });
+    if (yellowCircles < signals.length) {
+        signalStop();
+    };
+};
 
 function checkTimeZone() {
     if (!hasSignalOpen) {
@@ -115,38 +131,29 @@ function checkTimeZone() {
             }
             else {
                 noMatchTime++;
-            }
-        }
-        if (noMatchTime == data.length) {
+            };
+        };
+        if (noMatchTime === data.length) {
             continueChecking();
         }
         else {
             clearInterval(timeInterval);
-        }
+        };
     }
-    // else if (hasSignalOpen) {
-    //     hasSignalOpen = false;
-    //     clearInterval(nextSignal);
-    //     document.querySelectorAll(".circle3")?.forEach(x => x.classList.remove("green"));
-    //     checkTimeZone();
-    // }
-}
+    else {
+        inputPercentage?.forEach(x => x.setAttribute("readOnly", true))
+        hasSignalOpen = false;
+        clearInterval(timeInterval);
+        clearInterval(nextSignal);
+        document.querySelectorAll(".circle3").forEach(x => x.classList.remove("green"));
+        checkTimeZone();
+    };
+};
 
 
-function continueChecking() {
-    hasSignalOpen = false;
-    noMatchTime = 0;
-    clearInterval(nextSignal);
-    signalStop();
-    if (!hasSignalOpen) {
-        timeInterval = setInterval(checkTimeZone, 5000);
-    }
-}
-
-
-checkTimeZone();
-
-
+setTimeout(() => {
+    checkTimeZone();
+}, 1000);
 
 
 
